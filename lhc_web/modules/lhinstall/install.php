@@ -59,6 +59,9 @@ switch ((int)$Params['user_parameters']['step_id']) {
 		if (!is_writable("var/storagetheme"))
 	       $Errors[] = "var/storagetheme is not writable";
 
+		if (!is_writable("var/botphoto"))
+	       $Errors[] = "var/botphoto is not writable";
+
 		if (!is_writable("var/storageinvitation"))
 	       $Errors[] = "var/storageinvitation is not writable";
 
@@ -67,23 +70,23 @@ switch ((int)$Params['user_parameters']['step_id']) {
 
 		if (!extension_loaded ('pdo_mysql' ))
 	       $Errors[] = "php-pdo extension not detected. Please install php extension";
-		
+
 		if (!extension_loaded('curl'))
-			$Errors[] = "php_curl extension not detected. Please install php extension";	
-		
+			$Errors[] = "php_curl extension not detected. Please install php extension";
+
 		if (!extension_loaded('mbstring'))
-			$Errors[] = "mbstring extension not detected. Please install php extension";	
-		
+			$Errors[] = "mbstring extension not detected. Please install php extension";
+
 		if (!extension_loaded('gd'))
-			$Errors[] = "gd extension not detected. Please install php extension";	
-		
+			$Errors[] = "gd extension not detected. Please install php extension";
+
 		if (!function_exists('json_encode'))
-			$Errors[] = "json support not detected. Please install php extension";	
-		
+			$Errors[] = "json support not detected. Please install php extension";
+
 		if (version_compare(PHP_VERSION, '5.4.0','<')) {
-			$Errors[] = "Minimum 5.4.0 PHP version is required";	
+			$Errors[] = "Minimum 5.4.0 PHP version is required";
 		}
-		
+
        if (count($Errors) == 0){
            $tpl->setFile('lhinstall/install2.tpl.php');
        }
@@ -643,8 +646,10 @@ switch ((int)$Params['user_parameters']['step_id']) {
         	       `static_css_content` longtext NOT NULL,
         	       `css_attributes` longtext NOT NULL,
         	       `header_content` text NOT NULL,
+        	       `user_id` int(11) NOT NULL, 
         	       `header_css` text NOT NULL,
-        	       PRIMARY KEY (`id`)
+        	       PRIMARY KEY (`id`),
+        	       KEY `user_id` (`user_id`)
         	   ) ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
         	   $db->query("CREATE TABLE `lh_chat_paid` ( 
@@ -1305,6 +1310,7 @@ switch ((int)$Params['user_parameters']['step_id']) {
                 ('disable_live_autoassign','0','0','Disable live auto assign','0'),
                 ('tracked_footprint_cleanup','90','0','How many days keep records of users footprint.','0'),
                 ('cleanup_cronjob','0','0','Cleanup should be done only using cronjob.','0'),         
+                ('no_wildcard_cookie','0','0','Cookie should be valid only for domain where Javascript is embedded (excludes subdomains)','0'),
                 ('cduration_timeout_user','4','0','How long operator can wait for message from visitor before time between messages are ignored. Values in minutes.','0'),
                 ('cduration_timeout_operator','10','0','How long visitor can wait for message from operator before time between messages are ignored. Values in minutes.','0'),       
                 ('assign_workflow_timeout','0','0','Chats waiting in pending line more than n seconds should be auto assigned first. Time in seconds','0'),
@@ -1624,16 +1630,20 @@ switch ((int)$Params['user_parameters']['step_id']) {
         	   $db->query("CREATE TABLE `lh_group_object` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `object_id` bigint(20) NOT NULL, `group_id` bigint(20) NOT NULL, `type` bigint(20) NOT NULL, PRIMARY KEY (`id`), KEY `object_id_type` (`object_id`,`type`), KEY `group_id` (`group_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
         	   // Bot tables
-               $db->query("CREATE TABLE `lh_generic_bot_bot` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `nick` varchar(100) NOT NULL,`attr_str_1` varchar(100) NOT NULL, `attr_str_2` varchar(100) NOT NULL, `attr_str_3` varchar(100) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+               $db->query("CREATE TABLE `lh_generic_bot_bot` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `configuration` longtext NOT NULL, `filename` varchar(250) NOT NULL, `filepath` varchar(250) NOT NULL, `name` varchar(100) NOT NULL, `nick` varchar(100) NOT NULL,`attr_str_1` varchar(100) NOT NULL, `attr_str_2` varchar(100) NOT NULL, `attr_str_3` varchar(100) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                $db->query("CREATE TABLE `lh_generic_bot_group` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `bot_id` bigint(20) NOT NULL, PRIMARY KEY (`id`), KEY `bot_id` (`bot_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                $db->query("CREATE TABLE `lh_generic_bot_trigger` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `actions` longtext NOT NULL, `group_id` bigint(20) NOT NULL, `bot_id` int(11) NOT NULL, `default` int(11) NOT NULL, `default_unknown` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `bot_id` (`bot_id`),  KEY `default_unknown` (`default_unknown`), KEY `group_id` (`group_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-               $db->query("CREATE TABLE `lh_generic_bot_trigger_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `pattern` varchar(100) NOT NULL, `trigger_id` bigint(20) NOT NULL, `bot_id` int(11) NOT NULL, `type` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `pattern` (`pattern`), KEY `type` (`type`), KEY `trigger_id` (`trigger_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+               $db->query("CREATE TABLE `lh_generic_bot_trigger_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `pattern` varchar(250) NOT NULL, `pattern_exc` varchar(250) NOT NULL, `configuration` text NOT NULL, `trigger_id` bigint(20) NOT NULL, `bot_id` int(11) NOT NULL, `type` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `pattern_v2` (`pattern`(191)), KEY `type` (`type`), KEY `trigger_id` (`trigger_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                $db->query("CREATE TABLE `lh_generic_bot_payload` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `payload` varchar(100) NOT NULL, `bot_id` int(11) NOT NULL, `trigger_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `bot_id` (`bot_id`), KEY `trigger_id` (`trigger_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                $db->query("CREATE TABLE `lh_generic_bot_chat_workflow` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL,`trigger_id` bigint(20) NOT NULL, `time` int(11) NOT NULL, `identifier` varchar(100) NOT NULL, `status` int(11) NOT NULL, `collected_data` text, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                $db->query("CREATE TABLE `lh_generic_bot_chat_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL, `counter` int(11) NOT NULL, `content` longtext NOT NULL, `ctime` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+               $db->query("CREATE TABLE `lh_generic_bot_pending_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL, `trigger_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+               $db->query("CREATE TABLE `lh_generic_bot_exception` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `priority` int(11) NOT NULL, `active` tinyint(1) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+               $db->query("CREATE TABLE `lh_generic_bot_exception_message` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `code` varchar(20) NOT NULL, `exception_group_id` int(11) NOT NULL, `priority` int(11) NOT NULL, `active` tinyint(1) NOT NULL, `message` text NOT NULL, PRIMARY KEY (`id`), KEY `code` (`code`), KEY `exception_group_id` (`exception_group_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                $db->query("CREATE TABLE `lh_speech_user_language` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `user_id` bigint(20) NOT NULL, `language` varchar(20) NOT NULL, PRIMARY KEY (`id`), KEY `user_id_language` (`user_id`,`language`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+               $db->query("CREATE TABLE `lh_audits` (`id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `category` varchar(255) NOT NULL, `file` varchar(255), `object_id` bigint(20) DEFAULT '0', `line` bigint(20), `message` longtext NOT NULL, `severity` varchar(255) NOT NULL, `source` varchar(255) NOT NULL, `time` timestamp NOT NULL, KEY `object_id` (`object_id`), KEY `source` (`source`(191)), KEY `category` (`category`(191))) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        	   $Departament = new erLhcoreClassModelDepartament();
+               $Departament = new erLhcoreClassModelDepartament();
                $Departament->name = $form->DefaultDepartament;
                erLhcoreClassDepartament::getSession()->save($Departament);
 
@@ -1829,7 +1839,7 @@ switch ((int)$Params['user_parameters']['step_id']) {
                 $db->query("CREATE TABLE `lh_abstract_rest_api_key_remote` ( `id` int(11) NOT NULL AUTO_INCREMENT, `api_key` varchar(50) NOT NULL, `username` varchar(50) NOT NULL, `name` varchar(50) NOT NULL, `host` varchar(250) NOT NULL, `active` tinyint(1) NOT NULL DEFAULT '0', `position` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), KEY `active` (`active`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
                 $db->query("CREATE TABLE `lh_abstract_chat_variable` ( `id` int(11) NOT NULL AUTO_INCREMENT, `var_name` varchar(255) NOT NULL, `var_identifier` varchar(255) NOT NULL, `type` tinyint(1) NOT NULL, `js_variable` varchar(255) NOT NULL, `dep_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `dep_id` (`dep_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-                $db->query("CREATE TABLE `lh_abstract_chat_column` (`id` int(11) NOT NULL AUTO_INCREMENT,`column_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,`variable` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `position` int(11) NOT NULL, `enabled` tinyint(1) NOT NULL,`conditions` text COLLATE utf8mb4_unicode_ci NOT NULL,`column_icon` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `column_identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (`id`), KEY `enabled` (`enabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+                $db->query("CREATE TABLE `lh_abstract_chat_column` (`id` int(11) NOT NULL AUTO_INCREMENT,`column_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,`variable` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `position` int(11) NOT NULL, `enabled` tinyint(1) NOT NULL, `online_enabled` tinyint(1) NOT NULL, `chat_enabled` tinyint(1) NOT NULL, `conditions` text COLLATE utf8mb4_unicode_ci NOT NULL,`column_icon` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `column_identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (`id`), KEY `enabled` (`enabled`), KEY `online_enabled` (`online_enabled`), KEY `chat_enabled` (`chat_enabled`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
                 $db->query("CREATE TABLE `lh_abstract_chat_priority` (`id` int(11) NOT NULL AUTO_INCREMENT,`value` text COLLATE utf8mb4_unicode_ci NOT NULL,`dep_id` int(11) NOT NULL,`priority` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `dep_id` (`dep_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
                 // Session
@@ -1944,6 +1954,7 @@ switch ((int)$Params['user_parameters']['step_id']) {
                     array('module' => 'lhspeech', 'function' => 'changedefaultlanguage'),
                     array('module' => 'lhspeech', 'function' => 'use'),
                     array('module' => 'lhcannedmsg', 'function' => 'use'),
+                    array('module' => 'lhtheme', 'function' => 'personaltheme'),
                     array('module' => 'lhspeech', 'function' => 'change_chat_recognition'),
                 );
                 

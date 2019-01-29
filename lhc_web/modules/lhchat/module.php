@@ -62,6 +62,11 @@ $ViewList['updateattribute'] = array(
 		'uparams' => array('hash','hash_resume','vid'),
 );
 
+$ViewList['updatejsvars'] = array(
+		'params' => array(),
+		'uparams' => array('hash','hash_resume','vid'),
+);
+
 $ViewList['logevent'] = array(
 		'params' => array(),
 		'uparams' => array('hash','hash_resume','vid'),
@@ -110,6 +115,11 @@ $ViewList['loadactivechats'] = array(
 
 $ViewList['previewchat'] = array(
     'params' => array('chat_id'),
+    'functions' => array( 'use' )
+);
+
+$ViewList['previewmessage'] = array(
+    'params' => array(),
     'functions' => array( 'use' )
 );
 
@@ -196,7 +206,7 @@ $ViewList['loadinitialdata'] = array(
 
 $ViewList['list'] = array(
     'params' => array(),
-    'uparams' => array('department_ids','department_group_ids','user_ids','group_ids','subject_id','anonymized','una','chat_duration_from','chat_duration_till','wait_time_from','wait_time_till','chat_id','nick','email','timefrom','timeto','department_id','user_id','print','xls','fbst','chat_status','hum','product_id','timefrom','timefrom_minutes','timefrom_hours','timeto', 'timeto_minutes', 'timeto_hours', 'department_group_id', 'group_id', 'invitation_id'),
+    'uparams' => array('ip','department_ids','department_group_ids','user_ids','group_ids','subject_id','anonymized','una','chat_duration_from','chat_duration_till','wait_time_from','wait_time_till','chat_id','nick','email','timefrom','timeto','department_id','user_id','print','xls','fbst','chat_status','hum','product_id','timefrom','timefrom_minutes','timefrom_hours','timeto', 'timeto_minutes', 'timeto_hours', 'department_group_id', 'group_id', 'invitation_id'),
     'functions' => array( 'use' ),
     'multiple_arguments' => array(
         'department_ids',
@@ -437,7 +447,7 @@ $ViewList['printchat'] = array(
     'params' => array('chat_id','hash')
 );
 
-$ViewList['printchat'] = array(
+$ViewList['readchatmail'] = array(
     'params' => array('chat_id','hash')
 );
 
@@ -446,7 +456,8 @@ $ViewList['chatpreview'] = array(
 );
 
 $ViewList['bbcodeinsert'] = array(
-	'params' => array('chat_id')
+	'params' => array('chat_id'),
+	'uparams' => array('mode')
 );
 
 $ViewList['chatwidgetchat'] = array(
