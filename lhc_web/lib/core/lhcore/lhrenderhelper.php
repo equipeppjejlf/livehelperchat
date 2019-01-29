@@ -10,7 +10,8 @@ class erLhcoreClassRenderHelper {
 
         if (isset($params['optional_field'])){
            $defaultValue = isset($params['default_value']) ? $params['default_value'] : 0;
-           $output .= "<option value=\"{$defaultValue}\">{$params['optional_field']}</option>";
+           $selected = (is_array($params['selected_id']) && in_array($defaultValue,$params['selected_id']) || (!is_array($params['selected_id']) && $params['selected_id'] == $defaultValue)) ? 'selected="selected"' : '';
+           $output .= "<option value=\"{$defaultValue}\" {$selected}>{$params['optional_field']}</option>";
         }
 
         $attrId = isset($params['attr_id']) ? $params['attr_id'] : 'id';
@@ -65,7 +66,7 @@ class erLhcoreClassRenderHelper {
         $output = '<select '.$ismultiple.' id="id_'.$params['input_name'].'" name="'.$params['input_name'].'"'.$ngmodel.$onchange.$disbled.$class.$title.'>' . $output;
 
         if (isset($params['append_value'])) {
-            $selected = $params['selected_id'] == $params['append_value'][0] ? 'selected="selected"' : '';
+            $selected = (is_array($params['selected_id']) && in_array($params['append_value'][0],$params['selected_id']) || (!is_array($params['selected_id']) && $params['selected_id'] == $params['append_value'][0])) ? 'selected="selected"' : '';
             $output .= "<option value=\"{$params['append_value'][0]}\" $selected >{$params['append_value'][1]}</option>";
         }
 
@@ -172,8 +173,8 @@ class erLhcoreClassRenderHelper {
         $template = '<div class="btn-block-department">
                 <ul class="nav">
                     <li class="dropdown">
-                        <button type="button" class="btn btn-default btn-block btn-sm dropdown-toggle btn-department-dropdown" data-toggle="dropdown" aria-expanded="false">' .
-                        $params['optional_field']. ' <span class="caret"></span>
+                        <button type="button" class="btn btn-light btn-block btn-sm dropdown-toggle btn-department-dropdown" data-toggle="dropdown" aria-expanded="false">' .
+                        $params['optional_field']. ' 
                         </button>
                         <ul class="dropdown-menu" role="menu">
                         <li class="btn-block-department-filter">

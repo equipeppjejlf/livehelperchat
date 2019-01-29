@@ -5,6 +5,7 @@
 $trackDomain = erLhcoreClassModelChatConfig::fetch('track_domain')->current_value;
 $disableHTML5Storage = (int)erLhcoreClassModelChatConfig::fetch('disable_html5_storage')->current_value;
 $trackOnline = (int)erLhcoreClassModelChatConfig::fetch('track_if_offline')->current_value;
+$noWildcardCookie = (int)erLhcoreClassModelChatConfig::fetch('no_wildcard_cookie')->current_value;
 ?>
 
 <?php include(erLhcoreClassDesign::designtpl('lhchat/getstatus/is_online_help.tpl.php')); ?>
@@ -65,6 +66,7 @@ var lh_inst  = {
 	domain : false,
     isSharing : false,
     chat_started : false,
+    iswildcard : null,
     extensionArgs : '',
     prefillMessage : '',
     getCookieDomain : function(domain) {
@@ -79,6 +81,16 @@ var lh_inst  = {
     	};
     	return this.domain;
     },
+
+    isWildcardCookie : function() {
+        if (typeof <?php echo $chatOptionsVariable?> != 'undefined' && typeof <?php echo $chatOptionsVariable?>.opt != 'undefined' && typeof <?php echo $chatOptionsVariable?>.opt.subdomain != 'undefined') {
+            this.iswildcard = <?php echo $chatOptionsVariable?>.opt.subdomain;
+        }
+
+        return this.iswildcard;
+    },
+
+    updateVarsTimeout : null,
 
     appendArg : function(args) {
         var tt = args.length/2;
@@ -635,6 +647,13 @@ var lh_inst  = {
         th.appendChild(s);
     },
 
+    updateJSVars : function(vars){
+        var xhr = new XMLHttpRequest();
+        xhr.open( "POST", '<?php echo erLhcoreClassModelChatConfig::fetch('explicit_http_mode')->current_value?>//<?php echo $_SERVER['HTTP_HOST']?><?php echo erLhcoreClassDesign::baseurlsite()?>'+this.lang+'/chat/updatejsvars'+this.getAppendCookieArguments(), true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.send( "data=" + encodeURIComponent( this.JSON.stringify(vars) ) );
+    },
+
     storeEvents : function() {
         if (typeof <?php echo $chatOptionsVariable?>.events != 'undefined') {
             if (<?php echo $chatOptionsVariable?>.events.length > 0) {
@@ -668,7 +687,13 @@ var lh_inst  = {
 
     storePersistenCookie : function() {
     	try {
-	    	lhc_Cookies('lhc_per',this.JSON.stringify(this.cookieDataPers),{expires:16070400<?php $trackDomain != '' || $disableHTML5Storage == 1 ? ($trackDomain != '' ? print ",domain:'.{$trackDomain}'" : print ",domain:this.getCookieDomain()") : ''?>});
+            var cookieParams = {expires:16070400};
+
+            if ((this.isWildcardCookie() === null && 0 == <?php echo (int)$noWildcardCookie;?>) || (this.isWildcardCookie() === true)) {
+                cookieParams.domain = <?php ($trackDomain != '' ? print "'.{$trackDomain}'" : print "this.getCookieDomain()");?>;
+            }
+
+	    	lhc_Cookies('lhc_per',this.JSON.stringify(this.cookieDataPers),cookieParams);
 	    } catch(err) { };
     },
 
@@ -713,11 +738,19 @@ var lh_inst  = {
     		try {
     			localStorage.setItem('lhc_ses',this.JSON.stringify(this.cookieData));
     		} catch(err) { // Fallback to cookie
-    			lhc_Cookies('lhc_ses',this.JSON.stringify(this.cookieData),{<?php $trackDomain != '' || $disableHTML5Storage == 1 ? ($trackDomain != '' ? print "domain:'.{$trackDomain}'" : print "domain:this.getCookieDomain()") : ''?>});
+                var cookieParams = {};
+                if ((this.isWildcardCookie() === null && 0 == <?php echo (int)$noWildcardCookie;?>) || (this.isWildcardCookie() === true)) {
+                    cookieParams.domain = <?php ($trackDomain != '' ? print "'.{$trackDomain}'" : print "this.getCookieDomain()");?>;
+                }
+                lhc_Cookies('lhc_ses',this.JSON.stringify(this.cookieData),cookieParams);
     		};
     	} else {
     	<?php endif;?>
-	    	lhc_Cookies('lhc_ses',this.JSON.stringify(this.cookieData),{<?php $trackDomain != '' || $disableHTML5Storage == 1 ? ($trackDomain != '' ? print "domain:'.{$trackDomain}'" : print "domain:this.getCookieDomain()") : ''?>});
+            var cookieParams = {};
+            if ((this.isWildcardCookie() === null && 0 == <?php echo (int)$noWildcardCookie;?>) || (this.isWildcardCookie() === true)) {
+                cookieParams.domain = <?php ($trackDomain != '' ? print "'.{$trackDomain}'" : print "this.getCookieDomain()");?>;
+            }
+            lhc_Cookies('lhc_ses',this.JSON.stringify(this.cookieData),cookieParams);
 	    <?php if ($trackDomain == '' && $disableHTML5Storage == 0) : ?>}<?php endif;?>
     },
 
@@ -919,6 +952,14 @@ var lh_inst  = {
 	    xhr.send(this.parseOptions());
     },
 
+    invitationUrl  :  '',
+
+    showBasicInvitation : function(url) {
+        lh_inst.isProactivePending = 1;
+        lh_inst.invitationUrl = url;
+        this.addClass(document.getElementById('<?php echo $chatCSSPrefix?>_status_container'),'<?php echo $chatCSSPrefix?>_invitation-mode');
+    },
+
     attatchActivityListeners : function() {
         <?php if ((int)erLhcoreClassModelChatConfig::fetch('track_activity')->current_value > 0) : ?>
         var resetTimeout = function() {
@@ -1112,6 +1153,33 @@ function preloadDataLHC() {
     <?php elseif ($track_online_users == true) : ?>
         lh_inst.logPageView();
     <?php endif;?>
+
+    // Try to monitor variable if it's lhc_var
+    try {
+        if (typeof lhc_var !== 'undefined')
+        {
+            var validator = {
+                set: function(obj, prop, value) {
+                    // The default behavior to store the value
+                    obj[prop] = value;
+
+                    clearTimeout(lh_inst.updateVarsTimeout);
+
+                    lh_inst.updateVarsTimeout = setTimeout(function(){
+                        lh_inst.updateJSVars(obj);
+                    },1000);
+
+                    // Indicate success
+                    return true;
+                }
+            };
+            lhc_var = new Proxy(lhc_var,validator);
+        }
+    } catch(err) {
+
+    };
+
+
 
     lh_inst.checkStatusChat();
     lh_inst.attatchActivityListeners();

@@ -1634,6 +1634,14 @@
                 "default": "",
                 "extra": "",
                 "collation": "utf8mb4_unicode_ci"
+            },
+            {
+                "field": "user_id",
+                "type": "int(11)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": ""
             }
         ],
         "lh_abstract_product": [
@@ -4980,6 +4988,22 @@
                 "key": "PRI",
                 "default": null,
                 "extra": "auto_increment"
+            },
+            {
+                "field": "chat_enabled",
+                "type": "tinyint(1)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": ""
+            },
+            {
+                "field": "online_enabled",
+                "type": "tinyint(1)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": ""
             }
         ],
         "lh_abstract_chat_priority": [
@@ -5965,6 +5989,26 @@
                 "extra": ""
             }
         ],
+        "lh_generic_bot_exception": [
+            {
+                "field": "id",
+                "type": "bigint(20)",
+                "null": "NO",
+                "key": "PRI",
+                "default": null,
+                "extra": "auto_increment"
+            }
+        ],
+        "lh_generic_bot_exception_message": [
+            {
+                "field": "id",
+                "type": "bigint(20)",
+                "null": "NO",
+                "key": "PRI",
+                "default": null,
+                "extra": "auto_increment"
+            }
+        ],
         "lh_generic_bot_bot": [
             {
                 "field": "id",
@@ -5993,6 +6037,15 @@
                 "collation": "utf8mb4_unicode_ci"
             },
             {
+                "field": "configuration",
+                "type": "longtext",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": "",
+                "collation": "utf8mb4_unicode_ci"
+            },
+            {
                 "field": "attr_str_2",
                 "type": "varchar(100)",
                 "null": "NO",
@@ -6009,6 +6062,34 @@
                 "default": null,
                 "extra": "",
                 "collation": "utf8mb4_unicode_ci"
+            },
+            {
+                "field": "filepath",
+                "type": "varchar(250)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": "",
+                "collation": "utf8mb4_unicode_ci"
+            },
+            {
+                "field": "filename",
+                "type": "varchar(250)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": "",
+                "collation": "utf8mb4_unicode_ci"
+            }
+        ],
+        "lh_generic_bot_pending_event": [
+            {
+                "field": "id",
+                "type": "bigint(20)",
+                "null": "NO",
+                "key": "PRI",
+                "default": null,
+                "extra": "auto_increment"
             }
         ],
         "lh_generic_bot_chat_event": [
@@ -6125,6 +6206,40 @@
                 "key": "",
                 "default": null,
                 "extra": ""
+            },
+            {
+                "field": "pattern_exc",
+                "type": "varchar(250)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": ""
+            },
+            {
+                "field": "pattern",
+                "type": "varchar(250)",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": ""
+            },
+            {
+                "field": "configuration",
+                "type": "text",
+                "null": "NO",
+                "key": "",
+                "default": null,
+                "extra": ""
+            }
+        ],
+        "lh_audits": [
+            {
+                "field": "id",
+                "type": "bigint(20)",
+                "null": "NO",
+                "key": "PRI",
+                "default": null,
+                "extra": "auto_increment"
             }
         ],
         "lh_departament_availability": [
@@ -7728,6 +7843,13 @@
                 "hidden": "0"
             },
             {
+                "identifier": "no_wildcard_cookie",
+                "value": "0",
+                "type": "0",
+                "explain": "Cookie should be valid only for domain where Javascript is embedded (excludes subdomains)",
+                "hidden": "0"
+            },
+            {
                 "identifier": "checkstatus_timeout",
                 "value": "0",
                 "type": "0",
@@ -8643,6 +8765,13 @@
             },
     		"old" : []
     	},
+        "lh_abstract_chat_column" : {
+    		"new" : {
+                "online_enabled" : "ALTER TABLE `lh_abstract_chat_column` ADD INDEX `online_enabled` (`online_enabled`);",
+                "chat_enabled" : "ALTER TABLE `lh_abstract_chat_column` ADD INDEX `chat_enabled` (`chat_enabled`);"
+            },
+    		"old" : []
+    	},
     	"lh_departament" : {
     		"new" : {
     			"attr_int_1" : "ALTER TABLE `lh_departament` ADD INDEX `attr_int_1` (`attr_int_1`);",
@@ -8661,6 +8790,12 @@
     			"closed_chats_counter" : "ALTER TABLE `lh_departament` ADD INDEX `closed_chats_counter` (`closed_chats_counter`);"   
     		},
     		"old" : ["oha_sh_eh"]
+    	},
+        "lh_generic_bot_trigger_event" : {
+    		"new" : {
+    			"pattern_v2" : "ALTER TABLE `lh_generic_bot_trigger_event` ADD INDEX `pattern_v2` (`pattern`(191));"
+    		},
+    		"old" : ["pattern"]
     	},
     	"lh_canned_msg" : {
     		"new" : {
@@ -8705,11 +8840,17 @@
     			"ctime" : "ALTER TABLE `lh_abstract_proactive_chat_campaign_conv` ADD INDEX `ctime` (`ctime`);"
     		},
     		"old" : []
+    	},
+        "lh_admin_theme" : {
+    		"new" : {
+    			"user_id" : "ALTER TABLE `lh_admin_theme` ADD INDEX `user_id` (`user_id`);"
+    		},
+    		"old" : []
     	}
     },
     "tables_create": {
     	"lh_abstract_product_departament" : "CREATE TABLE `lh_abstract_product_departament` (  `id` int(11) NOT NULL AUTO_INCREMENT,  `product_id` int(11) NOT NULL,  `departament_id` int(11) NOT NULL,  PRIMARY KEY (`id`),  KEY `departament_id` (`departament_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
-    	"lh_admin_theme" : "CREATE TABLE `lh_admin_theme` ( `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `static_content` longtext NOT NULL, `static_js_content` longtext NOT NULL, `static_css_content` longtext NOT NULL, `header_content` text NOT NULL, `header_css` text NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+    	"lh_admin_theme" : "CREATE TABLE `lh_admin_theme` ( `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `static_content` longtext NOT NULL, `static_js_content` longtext NOT NULL, `user_id` int(11) NOT NULL, `static_css_content` longtext NOT NULL, `header_content` text NOT NULL, `header_css` text NOT NULL, PRIMARY KEY (`id`),  KEY `user_id` (`user_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
     	"lh_abstract_product" : "CREATE TABLE `lh_abstract_product` (`id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(250) NOT NULL, `priority` int(11) NOT NULL, `departament_id` int(11) NOT NULL, `disabled` int(11) NOT NULL, KEY `departament_id` (`departament_id`), PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
     	"lh_abstract_survey" : "CREATE TABLE `lh_abstract_survey` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(250) NOT NULL,`max_stars_1_title` varchar(250) NOT NULL,`max_stars_1_pos` int(11) NOT NULL,`max_stars_2_title` varchar(250) NOT NULL,`max_stars_2_pos` int(11) NOT NULL,`max_stars_2` int(11) NOT NULL,`max_stars_3_title` varchar(250) NOT NULL,`max_stars_3_pos` int(11) NOT NULL,`max_stars_3` int(11) NOT NULL,`max_stars_4_title` varchar(250) NOT NULL,`max_stars_4_pos` int(11) NOT NULL,`max_stars_4` int(11) NOT NULL,`max_stars_5_title` varchar(250) NOT NULL,`max_stars_5_pos` int(11) NOT NULL,`max_stars_5` int(11) NOT NULL,`question_options_1` varchar(250) NOT NULL,`question_options_1_items` text NOT NULL,`question_options_1_pos` int(11) NOT NULL,`question_options_2` varchar(250) NOT NULL,`question_options_2_items` text NOT NULL,`question_options_2_pos` int(11) NOT NULL,`question_options_3` varchar(250) NOT NULL,`question_options_3_items` text NOT NULL,`question_options_3_pos` int(11) NOT NULL,`question_options_4` varchar(250) NOT NULL,`question_options_4_items` text NOT NULL,`question_options_4_pos` int(11) NOT NULL,`question_options_5` varchar(250) NOT NULL,`question_options_5_items` text NOT NULL,`question_options_5_pos` int(11) NOT NULL,`question_plain_1` text NOT NULL,`question_plain_1_pos` int(11) NOT NULL,`question_plain_2` text NOT NULL,`question_plain_2_pos` int(11) NOT NULL,`question_plain_3` text NOT NULL,`question_plain_3_pos` int(11) NOT NULL,`question_plain_4` text NOT NULL,`question_plain_4_pos` int(11) NOT NULL,`question_plain_5` text NOT NULL,`question_plain_5_pos` int(11) NOT NULL,`max_stars_1_enabled` int(11) NOT NULL, `max_stars_2_enabled` int(11) NOT NULL,  `max_stars_3_enabled` int(11) NOT NULL,  `max_stars_4_enabled` int(11) NOT NULL,  `max_stars_5_enabled` int(11) NOT NULL,  `question_options_1_enabled` int(11) NOT NULL,  `question_options_2_enabled` int(11) NOT NULL,  `question_options_3_enabled` int(11) NOT NULL,  `question_options_4_enabled` int(11) NOT NULL,  `question_options_5_enabled` int(11) NOT NULL,  `question_plain_1_enabled` int(11) NOT NULL,  `question_plain_2_enabled` int(11) NOT NULL,  `question_plain_3_enabled` int(11) NOT NULL,  `question_plain_4_enabled` int(11) NOT NULL,  `question_plain_5_enabled` int(11) NOT NULL,  `max_stars_1` int(11) NOT NULL,  `max_stars_1_req` int(11) NOT NULL,  `max_stars_2_req` int(11) NOT NULL,  `max_stars_3_req` int(11) NOT NULL,  `max_stars_4_req` int(11) NOT NULL,  `max_stars_5_req` int(11) NOT NULL,  `question_options_1_req` int(11) NOT NULL,  `question_options_2_req` int(11) NOT NULL,  `question_options_3_req` int(11) NOT NULL,  `question_options_4_req` int(11) NOT NULL,  `question_options_5_req` int(11) NOT NULL,  `question_plain_1_req` int(11) NOT NULL,  `question_plain_2_req` int(11) NOT NULL,  `question_plain_3_req` int(11) NOT NULL,`question_plain_4_req` int(11) NOT NULL,`question_plain_5_req` int(11) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
     	"lh_abstract_survey_item" : "CREATE TABLE `lh_abstract_survey_item` (  `id` bigint(20) NOT NULL AUTO_INCREMENT,  `survey_id` int(11) NOT NULL,  `chat_id` int(11) NOT NULL,  `user_id` int(11) NOT NULL,  `ftime` int(11) NOT NULL,  `dep_id` int(11) NOT NULL,  `max_stars_1` int(11) NOT NULL,  `max_stars_2` int(11) NOT NULL,  `max_stars_3` int(11) NOT NULL,  `max_stars_4` int(11) NOT NULL,  `max_stars_5` int(11) NOT NULL,  `question_options_1` int(11) NOT NULL,  `question_options_2` int(11) NOT NULL,  `question_options_3` int(11) NOT NULL,  `question_options_4` int(11) NOT NULL,  `question_options_5` int(11) NOT NULL,  `question_plain_1` text NOT NULL,  `question_plain_2` text NOT NULL,  `question_plain_3` text NOT NULL,  `question_plain_4` text NOT NULL,  `question_plain_5` text NOT NULL,  PRIMARY KEY (`id`),  KEY `survey_id` (`survey_id`),  KEY `chat_id` (`chat_id`),  KEY `user_id` (`user_id`),  KEY `dep_id` (`dep_id`),  KEY `ftime` (`ftime`),  KEY `max_stars_1` (`max_stars_1`),  KEY `max_stars_2` (`max_stars_2`),  KEY `max_stars_3` (`max_stars_3`),  KEY `max_stars_4` (`max_stars_4`),  KEY `max_stars_5` (`max_stars_5`),  KEY `question_options_1` (`question_options_1`),  KEY `question_options_2` (`question_options_2`),  KEY `question_options_3` (`question_options_3`),  KEY `question_options_4` (`question_options_4`),  KEY `question_options_5` (`question_options_5`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
@@ -8774,22 +8915,26 @@
         "lh_chat_start_settings": "CREATE TABLE `lh_chat_start_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(50) NOT NULL, `data` longtext NOT NULL, `department_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `department_id` (`department_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         "lh_abstract_subject": "CREATE TABLE `lh_abstract_subject` ( `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_abstract_chat_variable": "CREATE TABLE `lh_abstract_chat_variable` ( `id` int(11) NOT NULL AUTO_INCREMENT, `var_name` varchar(255) NOT NULL, `var_identifier` varchar(255) NOT NULL, `type` tinyint(1) NOT NULL,`js_variable` varchar(255) NOT NULL, `dep_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `dep_id` (`dep_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
-        "lh_abstract_chat_column": "CREATE TABLE `lh_abstract_chat_column` (`id` int(11) NOT NULL AUTO_INCREMENT,`column_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,`variable` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `position` int(11) NOT NULL, `enabled` tinyint(1) NOT NULL,`conditions` text COLLATE utf8mb4_unicode_ci NOT NULL,`column_icon` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `column_identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (`id`), KEY `enabled` (`enabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_abstract_chat_column": "CREATE TABLE `lh_abstract_chat_column` (`id` int(11) NOT NULL AUTO_INCREMENT,`column_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,`variable` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `position` int(11) NOT NULL, `enabled` tinyint(1) NOT NULL, `online_enabled` tinyint(1) NOT NULL, `chat_enabled` tinyint(1) NOT NULL, `conditions` text COLLATE utf8mb4_unicode_ci NOT NULL,`column_icon` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, `column_identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (`id`), KEY `enabled` (`enabled`), KEY `online_enabled` (`online_enabled`), KEY `chat_enabled` (`chat_enabled`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_abstract_chat_priority": "CREATE TABLE `lh_abstract_chat_priority` (`id` int(11) NOT NULL AUTO_INCREMENT,`value` text COLLATE utf8mb4_unicode_ci NOT NULL,`dep_id` int(11) NOT NULL,`priority` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `dep_id` (`dep_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_abstract_subject_dep": "CREATE TABLE `lh_abstract_subject_dep` ( `id` int(11) NOT NULL AUTO_INCREMENT, `dep_id` int(11) NOT NULL, `subject_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `subject_id` (`subject_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_abstract_subject_chat": "CREATE TABLE `lh_abstract_subject_chat` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `subject_id` int(11) NOT NULL, `chat_id` bigint(20) NOT NULL, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_group_object": "CREATE TABLE `lh_group_object` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `object_id` bigint(20) NOT NULL, `group_id` bigint(20) NOT NULL, `type` bigint(20) NOT NULL, PRIMARY KEY (`id`), KEY `object_id_type` (`object_id`,`type`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_departament_availability": "CREATE TABLE `lh_departament_availability` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `dep_id` int(11) NOT NULL, `hour` int(11) NOT NULL, `hourminute` int(4) NOT NULL, `minute` int(11) NOT NULL, `time` int(11) NOT NULL, `ymdhi` bigint(20) NOT NULL, `ymd` int(11) NOT NULL, `status` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `ymdhi` (`ymdhi`), KEY `dep_id` (`dep_id`),  KEY `hourminute` (`hourminute`), KEY `time` (`time`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
-        "lh_generic_bot_bot": "CREATE TABLE `lh_generic_bot_bot` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `nick` varchar(100) NOT NULL,`attr_str_1` varchar(100) NOT NULL,`attr_str_2` varchar(100) NOT NULL,`attr_str_3` varchar(100) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_generic_bot_bot": "CREATE TABLE `lh_generic_bot_bot` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `nick` varchar(100) NOT NULL, `filepath` varchar(250) NOT NULL, `filename` varchar(250) NOT NULL, `configuration` longtext NOT NULL,`attr_str_1` varchar(100) NOT NULL,`attr_str_2` varchar(100) NOT NULL,`attr_str_3` varchar(100) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_generic_bot_exception": "CREATE TABLE `lh_generic_bot_exception` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `priority` int(11) NOT NULL, `active` tinyint(1) NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_generic_bot_exception_message": "CREATE TABLE `lh_generic_bot_exception_message` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `code` varchar(20) NOT NULL, `exception_group_id` int(11) NOT NULL, `priority` int(11) NOT NULL, `active` tinyint(1) NOT NULL, `message` text NOT NULL, PRIMARY KEY (`id`),  KEY `code` (`code`), KEY `exception_group_id` (`exception_group_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_generic_bot_group": "CREATE TABLE `lh_generic_bot_group` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `bot_id` bigint(20) NOT NULL, PRIMARY KEY (`id`), KEY `bot_id` (`bot_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_generic_bot_trigger": "CREATE TABLE `lh_generic_bot_trigger` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `actions` longtext NOT NULL, `group_id` bigint(20) NOT NULL, `bot_id` int(11) NOT NULL, `default` int(11) NOT NULL, `default_unknown` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `default_unknown` (`default_unknown`), KEY `bot_id` (`bot_id`) ,KEY `group_id` (`group_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
-        "lh_generic_bot_trigger_event": "CREATE TABLE `lh_generic_bot_trigger_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `pattern` varchar(100) NOT NULL, `trigger_id` bigint(20) NOT NULL, `bot_id` int(11) NOT NULL, `type` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `pattern` (`pattern`), KEY `type` (`type`), KEY `trigger_id` (`trigger_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_generic_bot_trigger_event": "CREATE TABLE `lh_generic_bot_trigger_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `pattern` varchar(250) NOT NULL, `pattern_exc` varchar(250) NOT NULL, `configuration` text NOT NULL, `trigger_id` bigint(20) NOT NULL, `bot_id` int(11) NOT NULL, `type` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `pattern_v2` (`pattern`(191)), KEY `type` (`type`), KEY `trigger_id` (`trigger_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_generic_bot_payload": "CREATE TABLE `lh_generic_bot_payload` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(100) NOT NULL, `payload` varchar(100) NOT NULL, `bot_id` int(11) NOT NULL, `trigger_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `bot_id` (`bot_id`), KEY `trigger_id` (`trigger_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_generic_bot_chat_workflow": "CREATE TABLE `lh_generic_bot_chat_workflow` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL, `time` int(11) NOT NULL, `trigger_id` bigint(20) NOT NULL, `identifier` varchar(100) NOT NULL, `status` int(11) NOT NULL, `collected_data` text, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_generic_bot_chat_event": "CREATE TABLE `lh_generic_bot_chat_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL, `counter` int(11) NOT NULL, `content` longtext NOT NULL, `ctime` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_generic_bot_pending_event": "CREATE TABLE `lh_generic_bot_pending_event` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL, `trigger_id` int(11) NOT NULL, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_notification_subscriber": "CREATE TABLE `lh_notification_subscriber` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `chat_id` bigint(20) NOT NULL, `online_user_id` bigint(20) NOT NULL, `dep_id` int(11) NOT NULL,`theme_id` int(11) NOT NULL, `ctime` int(11) NOT NULL, `utime` int(11) NOT NULL, `status` int(11) NOT NULL, `params` text NOT NULL, `device_type` tinyint(1) NOT NULL,`subscriber_hash` varchar(50) NOT NULL, `uagent` varchar(250) NOT NULL, `ip` varchar(250) NOT NULL, `last_error` text NOT NULL, PRIMARY KEY (`id`), KEY `chat_id` (`chat_id`), KEY `dep_id` (`dep_id`), KEY `online_user_id` (`online_user_id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_speech_user_language": "CREATE TABLE `lh_speech_user_language` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `user_id` bigint(20) NOT NULL, `language` varchar(20) NOT NULL, PRIMARY KEY (`id`), KEY `user_id_language` (`user_id`,`language`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
         "lh_abstract_proactive_chat_campaign": "CREATE TABLE `lh_abstract_proactive_chat_campaign` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `name` varchar(50) NOT NULL, `text` text NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
-        "lh_abstract_proactive_chat_campaign_conv": "CREATE TABLE `lh_abstract_proactive_chat_campaign_conv` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `device_type` tinyint(1) NOT NULL, `invitation_type` tinyint(1) NOT NULL,`invitation_status` tinyint(1) NOT NULL,`chat_id` bigint(20) NOT NULL, `campaign_id` int(11) NOT NULL,`invitation_id` int(11) NOT NULL,`department_id` int(11) NOT NULL,`ctime` int(11) NOT NULL,`con_time` int(11) NOT NULL, `vid_id` bigint(20) DEFAULT NULL, PRIMARY KEY (`id`), KEY `campaign_id` (`campaign_id`), KEY `invitation_id` (`invitation_id`), KEY `invitation_status` (`invitation_status`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+        "lh_abstract_proactive_chat_campaign_conv": "CREATE TABLE `lh_abstract_proactive_chat_campaign_conv` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `device_type` tinyint(1) NOT NULL, `invitation_type` tinyint(1) NOT NULL,`invitation_status` tinyint(1) NOT NULL,`chat_id` bigint(20) NOT NULL, `campaign_id` int(11) NOT NULL,`invitation_id` int(11) NOT NULL,`department_id` int(11) NOT NULL,`ctime` int(11) NOT NULL,`con_time` int(11) NOT NULL, `vid_id` bigint(20) DEFAULT NULL, PRIMARY KEY (`id`), KEY `campaign_id` (`campaign_id`), KEY `invitation_id` (`invitation_id`), KEY `invitation_status` (`invitation_status`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        "lh_audits": "CREATE TABLE `lh_audits` (`id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `category` varchar(255) NOT NULL, `file` varchar(255), `object_id` bigint(20) DEFAULT '0', `line` bigint(20), `message` longtext NOT NULL, `severity` varchar(255) NOT NULL, `source` varchar(255) NOT NULL, `time` timestamp NOT NULL, KEY `object_id` (`object_id`), KEY `source` (`source`(191)), KEY `category` (`category`(191))) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     }
 }
