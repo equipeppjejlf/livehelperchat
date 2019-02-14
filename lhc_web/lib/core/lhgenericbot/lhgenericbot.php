@@ -35,6 +35,9 @@ class erLhcoreClassGenericBot {
             'exc_group_id' => new ezcInputFormDefinitionElement(
                 ezcInputFormDefinitionElement::OPTIONAL, 'int',null, FILTER_REQUIRE_ARRAY
             ),
+            'bot_id' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'int',null, FILTER_REQUIRE_ARRAY
+            ),
         );
 
         $form = new ezcInputForm( INPUT_POST, $definition );
@@ -78,6 +81,12 @@ class erLhcoreClassGenericBot {
             $configurationArray['exc_group_id'] = array();
         }
 
+        if ( $form->hasValidData( 'bot_id' ) && !empty($form->bot_id)) {
+            $configurationArray['bot_id'] = $form->bot_id;
+        } else {
+            $configurationArray['bot_id'] = array();
+        }
+
         $bot->configuration_array = $configurationArray;
         $bot->configuration = json_encode($configurationArray);
 
@@ -92,9 +101,11 @@ class erLhcoreClassGenericBot {
 
             $Errors = array();
 
-            $dir = 'var/botphoto/' . date('Y') . 'y/' . date('m') . '/' . date('d') .'/' . $userData->id . '/';
+            $path = isset($params['path']) ? $params['path'] : 'var/botphoto/';
 
-            erLhcoreClassChatEventDispatcher::getInstance()->dispatch('user.edit.photo_path',array('dir' => & $dir,'storage_id' => $userData->id));
+            $dir = $path . date('Y') . 'y/' . date('m') . '/' . date('d') .'/' . $userData->id . '/';
+
+            erLhcoreClassChatEventDispatcher::getInstance()->dispatch('user.edit.photo_path',array('dir' => & $dir, 'storage_id' => $userData->id));
 
             $response = erLhcoreClassChatEventDispatcher::getInstance()->dispatch('user.edit.photo_store', array('file_post_variable' => 'UserPhoto', 'dir' => & $dir, 'storage_id' => $userData->id));
 
@@ -125,6 +136,73 @@ class erLhcoreClassGenericBot {
                     chmod($userData->file_path_server, 0644);
                 }
             }
+        }
+
+        return $Errors;
+    }
+
+    public static function validateBotTranslationGroup(& $botTranslation)
+    {
+        $definition = array(
+            'name' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
+            ),
+            'Nick' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
+            ),
+        );
+
+        $form = new ezcInputForm( INPUT_POST, $definition );
+        $Errors = array();
+
+        if ( !$form->hasValidData( 'name' ) || $form->name == '' ) {
+            $Errors[] =  erTranslationClassLhTranslation::getInstance()->getTranslation('departament/edit','Please enter translation group name!');
+        } else {
+            $botTranslation->name = $form->name;
+        }
+
+        if ( $form->hasValidData( 'Nick' )  ) {
+            $botTranslation->nick = $form->Nick;
+        } else {
+            $botTranslation->nick = '';
+        }
+
+        return $Errors;
+    }
+
+    public static function validateBotTranslationItem(& $botTranslationItem)
+    {
+        $definition = array(
+            'identifier' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
+            ),
+            'translation' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
+            ),
+            'group_id' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 1)
+            )
+        );
+
+        $form = new ezcInputForm( INPUT_POST, $definition );
+        $Errors = array();
+
+        if ( !$form->hasValidData( 'identifier' ) || $form->identifier == '' ) {
+            $Errors[] = erTranslationClassLhTranslation::getInstance()->getTranslation('departament/edit','Please enter translation group name!');
+        } else {
+            $botTranslationItem->identifier = $form->identifier;
+        }
+
+        if ( !$form->hasValidData( 'translation' ) || $form->translation == '' ) {
+            $Errors[] = erTranslationClassLhTranslation::getInstance()->getTranslation('departament/edit','Please enter translation!');
+        } else {
+            $botTranslationItem->translation = $form->translation;
+        }
+
+        if ( $form->hasValidData( 'group_id' ) ) {
+            $botTranslationItem->group_id = $form->group_id;
+        } else {
+            $Errors[] = erTranslationClassLhTranslation::getInstance()->getTranslation('departament/edit','Please choose a group!');
         }
 
         return $Errors;

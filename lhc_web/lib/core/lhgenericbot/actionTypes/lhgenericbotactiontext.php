@@ -87,13 +87,15 @@ class erLhcoreClassGenericBotActionText {
 
         if (isset($action['content']['html']) && !empty($action['content']['html']))
         {
-            $metaMessage['content']['html']['content'] = $action['content']['html'];
+            $metaMessage['content']['html']['content'] = erLhcoreClassGenericBotWorkflow::translateMessage($action['content']['html'],$chat->dep_id);
         }
 
         if (isset($action['content']['attr_options']) && !empty($action['content']['attr_options']))
         {
             $metaMessage['content']['attr_options'] = $action['content']['attr_options'];
         }
+
+        $action['content']['text'] = erLhcoreClassGenericBotWorkflow::translateMessage($action['content']['text'],$chat->dep_id);
 
         $msgData = explode('|||',(isset($action['content']['text']) ? trim($action['content']['text']) : ''));
 
@@ -111,7 +113,7 @@ class erLhcoreClassGenericBotActionText {
                 if (isset($configurationArray['exc_group_id']) && !empty($configurationArray['exc_group_id'])){
                     $exceptionMessage = erLhcoreClassModelGenericBotExceptionMessage::findOne(array('limit' => 1, 'sort' => 'priority ASC', 'filter' => array('active' => 1,'code' => $params['error_code']), 'filterin' => array('exception_group_id' => $configurationArray['exc_group_id'])));
                     if ($exceptionMessage instanceof erLhcoreClassModelGenericBotExceptionMessage && $exceptionMessage->message != '') {
-                        $params['replace_array']['{error}'] = $exceptionMessage->message;
+                        $params['replace_array']['{error}'] = erLhcoreClassGenericBotWorkflow::translateMessage($exceptionMessage->message,$chat->dep_id);
                     }
                 }
             }
